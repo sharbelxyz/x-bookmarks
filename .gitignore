@@ -1,1 +1,31 @@
 __pycache__/
+*.pyc
+
+# Secrets & credentials
+.env
+data/accounts.json
+data/dm_config.json
+
+# Data files (large, machine-generated)
+data/
+output/
+*.lock
+
+# Logs
+*.log
+dm_fetch*.log
+resolve*.log
+data/sync_stdout.log
+data/sync_stderr.log
+
+# Intermediate / temp
+dm_links*.json
+CONTINUATION_PROMPT.md
+
+# App data (generated at runtime)
+app/tweets.json
+app/index.html
+
+# Session state
+.claude/
+.playwright-mcp/
