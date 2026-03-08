@@ -2,6 +2,7 @@
 
 > Last updated: 2026-03-08
 > Branch: working copy (main repo at `/Users/mshrmnsr/claude1/x-bookmarks/`)
+> Session rules: See `CLAUDE.md` → **⚡ Session Operating Rules** (7 rules, auto-enforced every session)
 
 ---
 
@@ -38,10 +39,15 @@
 
 ---
 
+### Session 3 — Operating rules + docs
+- [x] Added 7 auto-enforced session rules to `CLAUDE.md` (parallel agents, surgical scoping, compaction, etc.)
+- [x] `CLAUDE.md` and `TASKS.md` cross-referenced and committed
+
+---
+
 ## 🔲 In Progress / Next
 
-- [ ] **Commit session 2 changes** — `app/dashboard.html` + `scripts/dashboard.py` + docs
-- [ ] **Push + open PR** for the no-terminal + premium redesign
+_(session 2 commits + PR update already done — nothing pending)_
 
 ---
 
