@@ -23,7 +23,7 @@ SCRIPTS_DIR = SERVICE_DIR / "scripts"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, send_file
 import service
 from json_filelock import locked_json_read
 
@@ -31,7 +31,7 @@ app = Flask(__name__, static_folder=str(APP_DIR))
 
 # Track running sync tasks
 _sync_lock = threading.Lock()
-_sync_status = {"bookmarks": "idle", "dms": "idle"}
+_sync_status = {"bookmarks": "idle", "dms": "idle", "harvest": "idle", "reclassify": "idle", "build_app": "idle"}
 _sync_log_buffer = []
 
 
@@ -107,7 +107,7 @@ def api_status():
         "total_tweets": total_tweets,
         "categories": categories,
         "sources": sources,
-        "sync_status": _sync_status,
+        "sync_status": dict(_sync_status),
         "scheduler_active": scheduler_active,
         "scheduler_runs_today": scheduler_runs.get(time.strftime("%Y-%m-%d"), 0),
         "dm_config": {
@@ -352,6 +352,143 @@ def api_scheduler():
         return jsonify({"status": "stopped"})
 
     return jsonify({"error": "Invalid action"}), 400
+
+
+@app.route("/api/harvest/full", methods=["POST"])
+def api_harvest_full():
+    """Trigger a full historical harvest for all accounts."""
+    if _sync_status["harvest"] != "idle":
+        return jsonify({"error": "Harvest already running"}), 409
+
+    def run_harvest():
+        _sync_status["harvest"] = "running"
+        add_log("Full harvest started (fetching ALL historical bookmarks)...")
+        try:
+            service.cmd_harvest_all(fetch_all=True)
+            add_log("Full harvest completed.")
+        except Exception as e:
+            add_log(f"Full harvest error: {e}")
+        finally:
+            _sync_status["harvest"] = "idle"
+
+    threading.Thread(target=run_harvest, daemon=True).start()
+    return jsonify({"status": "started"})
+
+
+@app.route("/api/reclassify", methods=["POST"])
+def api_reclassify():
+    """Re-classify tweets stuck in the 'Other' category via LLM."""
+    if _sync_status["reclassify"] != "idle":
+        return jsonify({"error": "Reclassification already running"}), 409
+
+    def run_reclassify():
+        _sync_status["reclassify"] = "running"
+        add_log("Reclassification started (re-classifying 'Other' tweets)...")
+        try:
+            service.cmd_reclassify_other()
+            add_log("Reclassification completed.")
+        except Exception as e:
+            add_log(f"Reclassification error: {e}")
+        finally:
+            _sync_status["reclassify"] = "idle"
+
+    threading.Thread(target=run_reclassify, daemon=True).start()
+    return jsonify({"status": "started"})
+
+
+@app.route("/api/export")
+def api_export():
+    """Export all bookmarks as CSV or JSON and serve as download."""
+    fmt = request.args.get("format", "json")
+    if fmt not in ("csv", "json"):
+        return jsonify({"error": "format must be csv or json"}), 400
+
+    output_dir = SERVICE_DIR / "output"
+    output_dir.mkdir(exist_ok=True)
+    out_file = output_dir / f"bookmarks_all.{fmt}"
+
+    import csv as csv_mod
+    master = service.master_data_file()
+    tweets = locked_json_read(master, default=[])
+
+    if fmt == "csv":
+        with open(out_file, "w", newline="", encoding="utf-8") as f:
+            writer = csv_mod.writer(f)
+            writer.writerow(["id", "text", "author", "date", "likes", "retweets",
+                              "views", "category", "subcategory", "summary", "sources", "url"])
+            for t in tweets:
+                author = ""
+                if isinstance(t.get("author"), dict):
+                    author = t["author"].get("username", t["author"].get("userName", ""))
+                tid = t.get("id", "")
+                writer.writerow([
+                    tid,
+                    (t.get("text", "") or "")[:500],
+                    author,
+                    t.get("createdAt", ""),
+                    t.get("likeCount", 0),
+                    t.get("retweetCount", 0),
+                    t.get("viewCount", 0),
+                    t.get("category", ""),
+                    t.get("subcategory", ""),
+                    t.get("summary", ""),
+                    ",".join(t.get("sources", [])),
+                    f"https://x.com/i/status/{tid}" if tid else "",
+                ])
+    else:
+        compact = []
+        for t in tweets:
+            author = ""
+            if isinstance(t.get("author"), dict):
+                author = t["author"].get("username", t["author"].get("userName", ""))
+            tid = t.get("id", "")
+            compact.append({
+                "id": tid,
+                "text": (t.get("text", "") or "")[:500],
+                "author": author,
+                "date": t.get("createdAt", ""),
+                "likes": t.get("likeCount", 0),
+                "category": t.get("category", ""),
+                "subcategory": t.get("subcategory", ""),
+                "summary": t.get("summary", ""),
+                "sources": t.get("sources", []),
+                "url": f"https://x.com/i/status/{tid}" if tid else "",
+            })
+        with open(out_file, "w", encoding="utf-8") as f:
+            json.dump(compact, f, indent=2, ensure_ascii=False)
+
+    add_log(f"Exported {len(tweets)} tweets as {fmt.upper()}")
+    return send_file(str(out_file), as_attachment=True,
+                     download_name=f"bookmarks_all.{fmt}",
+                     mimetype="text/csv" if fmt == "csv" else "application/json")
+
+
+@app.route("/api/build-app", methods=["POST"])
+def api_build_app():
+    """Build the macOS .app bundle in the background."""
+    if _sync_status["build_app"] != "idle":
+        return jsonify({"error": "Build already running"}), 409
+
+    def run_build():
+        _sync_status["build_app"] = "running"
+        add_log("Building macOS .app bundle...")
+        try:
+            build_script = SERVICE_DIR / "build_app.py"
+            result = subprocess.run(
+                [sys.executable, str(build_script)],
+                capture_output=True, text=True, cwd=str(SERVICE_DIR)
+            )
+            if result.returncode == 0:
+                add_log("App bundle built successfully — check the project folder.")
+            else:
+                add_log(f"Build failed: {result.stderr[:200]}")
+        except Exception as e:
+            add_log(f"Build error: {e}")
+        finally:
+            _sync_status["build_app"] = "idle"
+
+    threading.Thread(target=run_build, daemon=True).start()
+    return jsonify({"status": "started"})
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
