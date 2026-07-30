@@ -1,6 +1,6 @@
 # X Bookmarks — Auth Setup
 
-Two ways to authenticate. Pick whichever works for you.
+Three ways to authenticate. Pick whichever works for you.
 
 ---
 
@@ -66,7 +66,43 @@ bird whoami
 
 ---
 
-## Option B: X API v2 (no bird needed)
+## Option B: Xquik (no browser cookies)
+
+Use Xquik when you want direct bookmark reads without local browser cookies.
+
+### Step 1: Connect X and Create a Key
+
+1. Connect your X account in the [Xquik dashboard](https://xquik.com/dashboard/account?tab=x-accounts).
+2. Create an API key.
+3. Export it in your shell:
+
+```bash
+read -rsp "Xquik API key: " XQUIK_API_KEY
+export XQUIK_API_KEY
+printf '\n'
+```
+
+Keep the key outside source code, shell history, and committed files.
+
+### Step 2: Fetch Bookmarks
+
+```bash
+python3 scripts/fetch_bookmarks_xquik.py -n 20
+```
+
+Fetch every page, resume from a cursor, or select one folder:
+
+```bash
+python3 scripts/fetch_bookmarks_xquik.py --all
+python3 scripts/fetch_bookmarks_xquik.py --cursor "CURSOR"
+python3 scripts/fetch_bookmarks_xquik.py --folder-id "FOLDER_ID"
+```
+
+See the [Xquik Bookmarks API](https://docs.xquik.com/api-reference/x/bookmarks) for the public response contract.
+
+---
+
+## Option C: X API v2 (no bird needed)
 
 Use this if bird CLI isn't available or stops working.
 
@@ -113,19 +149,20 @@ X_API_BEARER_TOKEN="your_token" python3 scripts/fetch_bookmarks_api.py -n 20
 
 ### X API Pricing Note
 
-As of 2025, the X API uses **pay-per-usage pricing**. Bookmark reads are low volume (a few calls/day for digests), so costs should be minimal. Check [X Developer Console](https://console.x.com) for current rates.
+Check the [X Developer Console](https://console.x.com) for current access and pricing.
 
 ---
 
 ## Which Should I Use?
 
-| | bird CLI | X API v2 |
-|---|---|---|
-| **Setup** | `npm i -g bird-cli` + browser login | Developer account + OAuth |
-| **Auth** | Browser cookies (auto) | OAuth 2.0 tokens (auto-refresh) |
-| **Cost** | Free | Pay-per-use (very cheap) |
-| **Reliability** | Depends on cookie access | Official API, stable |
-| **Extra data** | Thread context, folders | View count, bookmark count |
-| **Unbookmark** | ✅ `bird unbookmark <id>` | ✅ via API (DELETE endpoint) |
+| | bird CLI | Xquik | X API v2 |
+|---|---|---|---|
+| **Setup** | npm package + browser login | API key + connected X account | Developer account + OAuth |
+| **Auth** | Browser cookies | Xquik API key | OAuth 2.0 tokens |
+| **Pagination** | CLI-managed | Cursor-managed | Cursor-managed |
+| **Folders** | Supported | Supported | Depends on X API access |
+| **Extra data** | Thread context | Engagement and media | Engagement and media |
 
-**TL;DR:** Try bird first. If it doesn't work, use the API.
+**TL;DR:** Try bird first. Use Xquik when browser-cookie access is unavailable. Keep X API v2 as another direct option.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.

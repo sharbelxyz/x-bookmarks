@@ -10,7 +10,7 @@ Once installed, just tell your AI agent:
 
 That's it. Your agent will:
 
-1. **Fetch** your latest X bookmarks (auto-detects bird CLI or X API v2)
+1. **Fetch** your latest X bookmarks (auto-detects bird CLI, Xquik, or X API v2)
 2. **Categorize** them by topic (crypto, AI, marketing, tools, etc.)
 3. **Propose actions** for each one — not just summaries, but things your agent can actually do:
 
@@ -36,7 +36,7 @@ Set up a daily or weekly cron job and your agent will automatically check for ne
 
 ## What it does
 
-- Fetches your X bookmarks via **bird CLI** or **X API v2** (auto-detects)
+- Fetches your X bookmarks via **bird CLI**, **Xquik**, or **X API v2**
 - Categorizes them by topic
 - Proposes specific actions your AI agent can execute
 - Supports scheduled digests via cron
@@ -52,7 +52,29 @@ npm install -g bird-cli
 bird --chrome-profile "Default" bookmarks --json
 ```
 
-### Option 2: X API v2 (no bird needed)
+### Option 2: Xquik API (no browser cookies)
+
+Connect an X account in Xquik and create an API key. Keep the key outside source code:
+
+```bash
+read -rsp "Xquik API key: " XQUIK_API_KEY
+export XQUIK_API_KEY
+printf '\n'
+python3 scripts/fetch_bookmarks_xquik.py -n 20
+```
+
+Fetch every page or one bookmark folder:
+
+```bash
+python3 scripts/fetch_bookmarks_xquik.py --all
+python3 scripts/fetch_bookmarks_xquik.py --folder-id "YOUR_FOLDER_ID"
+```
+
+The client follows Xquik cursors, including empty filtered pages. It rejects malformed responses and repeated cursors. See the [Xquik Bookmarks API](https://docs.xquik.com/api-reference/x/bookmarks).
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
+
+### Option 3: X API v2 (no bird needed)
 
 ```bash
 # One-time: create app at https://developer.x.com, then:
@@ -62,15 +84,24 @@ python3 scripts/x_api_auth.py --client-id "YOUR_CLIENT_ID"
 python3 scripts/fetch_bookmarks_api.py -n 20
 ```
 
-Both backends output the same JSON format — all workflows work with either.
+All 3 backends output the same JSON format. Every workflow remains backend-agnostic.
+
+### Optional TweetClaw companion
+
+Keep this Skill focused on saved posts and bookmark digests. For live X workflows beyond bookmarks, install [TweetClaw](https://github.com/Xquik-dev/tweetclaw):
+
+```bash
+openclaw plugins install clawhub:@xquik/tweetclaw
+```
 
 ## Auto-Detection
 
 You don't need to pick a backend. The skill automatically:
 
 1. Tries `bird whoami` — if it works, uses bird CLI
-2. If not, checks for X API tokens in `~/.config/x-bookmarks/`
-3. If neither, walks you through setup (offers both options)
+2. If not, checks for `XQUIK_API_KEY`
+3. If not, checks for X API tokens in `~/.config/x-bookmarks/`
+4. If none work, walks you through all setup options
 
 ## Files
 
@@ -78,16 +109,18 @@ You don't need to pick a backend. The skill automatically:
 SKILL.md              — Agent instructions (the skill itself)
 scripts/
   fetch_bookmarks.sh      — bird CLI wrapper
+  fetch_bookmarks_xquik.py — Xquik bookmark fetcher
   fetch_bookmarks_api.py  — X API v2 fetcher
   x_api_auth.py           — OAuth 2.0 PKCE auth helper
 references/
-  auth-setup.md           — Detailed setup guide for both backends
+  auth-setup.md           — Detailed setup guide for all backends
 ```
 
 ## Requirements
 
-**bird CLI path:** Node.js, npm, bird-cli, browser with X login  
-**X API path:** Python 3.10+, X Developer account, OAuth 2.0 app
+- **bird CLI path:** Node.js, npm, bird-cli, browser with X login
+- **Xquik path:** Python 3.10+, Xquik API key, connected X account
+- **X API path:** Python 3.10+, X Developer account, OAuth 2.0 app
 
 ## Install as OpenClaw Skill
 
