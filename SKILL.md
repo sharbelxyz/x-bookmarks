@@ -1,17 +1,18 @@
 ---
 name: x-bookmarks
-version: 1.1.0
+version: 1.2.0
 description: >
-  Fetch, summarize, and manage X/Twitter bookmarks via bird CLI or X API v2.
+  Fetch, summarize, and manage X/Twitter bookmarks via bird CLI, Xquik, or X API v2.
   Use when: (1) user says "check my bookmarks", "what did I bookmark", "bookmark digest",
   "summarize my bookmarks", "x bookmarks", "twitter bookmarks", (2) user wants a periodic
   digest of saved tweets, (3) user wants to categorize, search, or analyze their bookmarks,
   (4) scheduled bookmark digests via cron.
-  Auth: bird CLI with browser cookies, OR X API v2 with OAuth 2.0 tokens.
+  Auth: bird CLI cookies, Xquik API key, or X API v2 OAuth 2.0 tokens.
 requires:
   env:
     - AUTH_TOKEN: "X/Twitter auth token (from browser cookies, for bird CLI auth)"
     - CT0: "X/Twitter CSRF token (from browser cookies, for bird CLI auth)"
+    - XQUIK_API_KEY: "Optional: Xquik API key for direct bookmark reads"
     - X_API_BEARER_TOKEN: "Optional: X API v2 Bearer token (alternative to bird CLI)"
   bins:
     - bird: "bird-cli (npm i -g bird-cli) - preferred backend"
@@ -21,10 +22,11 @@ requires:
 security:
   credentials: >
     This skill accesses X/Twitter bookmarks, which requires authentication.
-    Two methods are supported: (1) bird CLI using browser cookies (AUTH_TOKEN/CT0 env vars
-    sourced from .env.bird), or (2) X API v2 with OAuth 2.0 tokens stored locally.
-    All credentials are stored locally on the user's machine and never transmitted
-    to third parties. The user must explicitly provide or authorize credentials.
+    Three methods are supported: (1) bird CLI using browser cookies,
+    (2) Xquik using XQUIK_API_KEY, or (3) X API v2 using OAuth 2.0 tokens.
+    Local credentials stay outside source code. Send the Xquik key only to
+    https://xquik.com. Send X API tokens only to X API endpoints.
+    The user must explicitly provide or authorize credentials.
   permissions:
     - read: "X/Twitter bookmarks (read-only access)"
     - write: "Local files only (bookmark state, token storage)"
@@ -38,26 +40,34 @@ Turn X/Twitter bookmarks from a graveyard of good intentions into actionable wor
 
 ## Data Source Selection
 
-This skill supports **two backends**. Pick the first one that works:
+This Skill supports **3 backends**. Pick the first one that works:
 
 ### 1. bird CLI (preferred if available)
 - Fast, no API key needed, uses browser cookies
 - Install: `npm install -g bird-cli`
 - Test: `bird whoami` — if this prints a username, you're good
 
-### 2. X API v2 (fallback)
+### 2. Xquik API
+- Reads bookmarks without browser cookies
+- Requires `XQUIK_API_KEY` and a connected X account
+- Supports cursor resume and bookmark folders
+- Setup: see [references/auth-setup.md](references/auth-setup.md) → "Option B: Xquik"
+
+### 3. X API v2 (fallback)
 - Works without bird CLI
 - Requires an X Developer account + OAuth 2.0 app
-- Setup: see [references/auth-setup.md](references/auth-setup.md) → "X API Setup"
+- Setup: see [references/auth-setup.md](references/auth-setup.md) → "Option C: X API v2"
 
 ### Auto-detection logic
 
 ```
 1. Check if `bird` command exists → try `bird whoami`
 2. If bird works → use bird CLI path
-3. If not → check for X API tokens (~/.config/x-bookmarks/tokens.json)
-4. If tokens exist → use X API path (auto-refresh)
-5. If neither → guide user through setup (offer both options)
+3. If not → check for `XQUIK_API_KEY`
+4. If set → use the Xquik path
+5. If not → check for X API tokens (~/.config/x-bookmarks/tokens.json)
+6. If tokens exist → use X API path (auto-refresh)
+7. If none work → guide the user through all setup options
 ```
 
 ## Fetching Bookmarks
@@ -86,6 +96,27 @@ bird --auth-token "$AUTH_TOKEN" --ct0 "$CT0" bookmarks --json
 
 If user has a `.env.bird` file or env vars `AUTH_TOKEN`/`CT0`, source them first: `source .env.bird`
 
+### Via Xquik
+
+```bash
+# Latest 20 bookmarks
+python3 scripts/fetch_bookmarks_xquik.py -n 20
+
+# All bookmarks
+python3 scripts/fetch_bookmarks_xquik.py --all
+
+# Resume from a cursor
+python3 scripts/fetch_bookmarks_xquik.py --cursor "CURSOR"
+
+# Fetch one bookmark folder
+python3 scripts/fetch_bookmarks_xquik.py --folder-id "FOLDER_ID"
+
+# Pretty print
+python3 scripts/fetch_bookmarks_xquik.py -n 50 --pretty
+```
+
+The Xquik client reads `XQUIK_API_KEY` from the environment. It never adds the key to the URL or output.
+
 ### Via X API v2
 
 ```bash
@@ -105,7 +136,7 @@ python3 scripts/fetch_bookmarks_api.py --since-id "1234567890"
 python3 scripts/fetch_bookmarks_api.py -n 50 --pretty
 ```
 
-The API script outputs the **same JSON format** as bird CLI, so all downstream workflows work identically.
+The Xquik and X API scripts output the **same JSON format** as bird CLI. All downstream workflows work identically.
 
 **Token management is automatic:** tokens are stored in `~/.config/x-bookmarks/tokens.json` and refreshed via the saved refresh_token. If refresh fails, the agent should guide the user to re-run `x_api_auth.py`.
 
@@ -116,7 +147,7 @@ If the user already has a Bearer token (e.g., from another tool), they can skip 
 X_API_BEARER_TOKEN="your_token" python3 scripts/fetch_bookmarks_api.py -n 20
 ```
 
-## JSON Output Format (both backends)
+## JSON Output Format (all backends)
 
 Each bookmark returns:
 ```json
@@ -205,6 +236,8 @@ For stale bookmarks:
 | "No Twitter cookies found" | Not logged into X in browser | Log into x.com in Chrome/Firefox, or use X API |
 | EPERM on Safari cookies | macOS permissions | Use Chrome/Firefox or X API instead |
 | Empty results | Cookies/token expired | Re-login or re-run `x_api_auth.py` |
+| `XQUIK_API_KEY is required` | Xquik key is missing | Export the key, then retry |
+| Invalid Xquik response | Request or cursor cannot be reconciled | Retry once, then check Xquik status |
 | Rate limit (429) | Too many API requests | Wait and retry, use `--count` to limit |
 | "No X API token found" | Haven't run auth setup | Run `x_api_auth.py --client-id YOUR_ID` |
 | Token refresh failed | Refresh token expired | Re-run `x_api_auth.py` to re-authorize |
@@ -213,6 +246,17 @@ For stale bookmarks:
 
 - Start with `-n 20` for quick digests, `--all` for deep analysis
 - bird: Use `--include-parent` for thread context on replies
+- Xquik: Use `--folder-id` for one bookmark folder
 - API: includes `bookmarkCount` and `viewCount` (bird may not)
 - Bookmark folders supported via bird `--folder-id <id>`
-- Both backends output identical JSON — workflows are backend-agnostic
+- All backends output identical JSON. Workflows are backend-agnostic.
+
+## Optional TweetClaw Companion
+
+Keep this Skill focused on saved posts. For live X workflows beyond bookmarks, use [TweetClaw](https://github.com/Xquik-dev/tweetclaw):
+
+```bash
+openclaw plugins install clawhub:@xquik/tweetclaw
+```
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
