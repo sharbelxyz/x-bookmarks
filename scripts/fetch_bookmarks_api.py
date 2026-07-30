@@ -25,7 +25,7 @@ from pathlib import Path
 
 # Import auth helper (same directory)
 sys.path.insert(0, str(Path(__file__).parent))
-from x_api_auth import get_valid_token, load_tokens, load_config
+from x_api_auth import get_valid_token
 
 BASE_URL = "https://api.x.com/2"
 MAX_RESULTS_PER_PAGE = 100  # X API max
@@ -119,7 +119,11 @@ def fetch_all_bookmarks(token: str, count: int = 20, all_pages: bool = False, si
     remaining = count if not all_pages else float("inf")
 
     while remaining > 0:
-        page_size = min(int(remaining), MAX_RESULTS_PER_PAGE)
+        page_size = (
+            MAX_RESULTS_PER_PAGE
+            if all_pages
+            else min(int(remaining), MAX_RESULTS_PER_PAGE)
+        )
         try:
             response = fetch_bookmarks_page(
                 token, user_id, page_size, pagination_token, since_id
