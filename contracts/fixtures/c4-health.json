@@ -1,0 +1,52 @@
+{
+  "contract": "C4",
+  "revision": "c1",
+  "endpoint": "GET /api/health",
+  "frozen_fields": [
+    "service",
+    "ok",
+    "now",
+    "server_started_at",
+    "pid",
+    "status_updated_at",
+    "status_error",
+    "age_seconds",
+    "stale",
+    "stale_after_seconds",
+    "gate_ready",
+    "resources",
+    "status_counts",
+    "dashboard_modified_at",
+    "dashboard_data_modified_at",
+    "next_run_at",
+    "cron_minutes"
+  ],
+  "sample": {
+    "service": "group-radar",
+    "ok": true,
+    "now": "2026-09-06T17:00:00+00:00",
+    "server_started_at": "2026-09-06T10:00:00+00:00",
+    "pid": 12345,
+    "status_updated_at": "2026-09-06T16:47:30+00:00",
+    "status_error": "",
+    "age_seconds": 750,
+    "stale": false,
+    "stale_after_seconds": 5400,
+    "gate_ready": true,
+    "resources": 100,
+    "status_counts": {
+      "pending_hydration": 0,
+      "pending_review": 0,
+      "relevant": 40,
+      "irrelevant": 55,
+      "unavailable": 5
+    },
+    "dashboard_modified_at": "2026-09-06T16:47:31+00:00",
+    "dashboard_data_modified_at": "2026-09-06T16:47:31+00:00",
+    "next_run_at": "2026-09-06T20:17:00+03:00",
+    "cron_minutes": [
+      17,
+      47
+    ]
+  }
+}

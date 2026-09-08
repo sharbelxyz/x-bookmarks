@@ -1,0 +1,31 @@
+{
+  "contract": "C2",
+  "revision": "c1",
+  "decision_line": {
+    "id": "a1b2c3d4",
+    "action": "y",
+    "at": "2026-09-06T12:00:00+00:00"
+  },
+  "action_to_verdict": {
+    "y": "must_try",
+    "n": "excluded"
+  },
+  "offset_file_current": {
+    "offset": 12345,
+    "checked_at": "2026-09-06T12:00:00+00:00"
+  },
+  "offset_file_target_additive": {
+    "log_identity": "<inode-or-first-line-hash>",
+    "consumed_ids": [
+      "a1b2c3d4"
+    ]
+  },
+  "pending_entry": {
+    "a1b2c3d4": {
+      "key": "github.com/example/synthetic-cli",
+      "name": "synthetic-cli",
+      "offered_at": "2026-09-05T10:00:00+00:00"
+    }
+  },
+  "callback_data": "rdr:a1b2c3d4:y"
+}

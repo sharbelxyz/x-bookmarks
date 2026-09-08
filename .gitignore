@@ -29,3 +29,15 @@ app/index.html
 # Session state
 .claude/
 .playwright-mcp/
+
+# Personal radar state and deployment coordinates (never publish)
+config/group-filter-profile.json
+config/verdicts.json
+config/outcomes.json
+config/vps.json
+handoffs/
+_versions/
+tmp/
+tests/fixtures/tls/
+config/accounts.json
+accounts.json

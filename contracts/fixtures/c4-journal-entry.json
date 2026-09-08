@@ -1,0 +1,26 @@
+{
+  "contract": "C4",
+  "revision": "c1",
+  "outcomes": [
+    "ok",
+    "error",
+    "stuck"
+  ],
+  "fields_observed": [
+    "started_at",
+    "finished_at",
+    "outcome",
+    "review_batches",
+    "scope_replay",
+    "sync",
+    "telegram",
+    "bookmarks",
+    "enrichment",
+    "hydration_failure_repeats",
+    "export",
+    "verification",
+    "notification",
+    "error",
+    "architecture"
+  ]
+}

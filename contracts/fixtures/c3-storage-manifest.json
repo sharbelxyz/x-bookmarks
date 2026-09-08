@@ -1,0 +1,97 @@
+{
+  "contract": "C3",
+  "revision": "c1",
+  "manifest_version": 1,
+  "recovery_set": [
+    {
+      "store": "data/group-monitor/group-monitor.sqlite3",
+      "kind": "sqlite",
+      "writers": [
+        "group_monitor (scanner)",
+        "ingest_bookmarks"
+      ],
+      "backup": "sqlite backup API / VACUUM INTO only; never a live file copy"
+    },
+    {
+      "store": "config/verdicts.json",
+      "kind": "authored-json",
+      "writers": [
+        "radar_server.record_verdict (dashboard + telegram pull)"
+      ]
+    },
+    {
+      "store": "config/outcomes.json",
+      "kind": "authored-json",
+      "writers": [
+        "radar_server.record_outcome"
+      ]
+    },
+    {
+      "store": "config/group-filter-profile.json",
+      "kind": "authored-json",
+      "writers": [
+        "radar_server.record_negative_term"
+      ]
+    },
+    {
+      "store": "data/group-monitor/telegram-offset.json",
+      "kind": "checkpoint",
+      "writers": [
+        "telegram_decisions.pull"
+      ]
+    },
+    {
+      "store": "data/group-monitor/pending-decisions.json",
+      "kind": "checkpoint",
+      "writers": [
+        "telegram_decisions.register_pending"
+      ]
+    },
+    {
+      "store": "data/group-monitor/autonomous-runs.jsonl",
+      "kind": "append-journal",
+      "writers": [
+        "group_filter_loop.append_journal"
+      ]
+    },
+    {
+      "store": "sqlite:metadata",
+      "kind": "kv",
+      "keys": [
+        "fetch_cursor",
+        "fetch_incomplete",
+        "capture_scope_version",
+        "hydration_failure_repeats",
+        "bootstrap_evidence"
+      ]
+    }
+  ],
+  "regenerable": [
+    "dashboard.html",
+    "dashboard-data.json",
+    "status.json",
+    "relevant.csv",
+    "relevant.jsonl",
+    "all-resources.csv",
+    "latest.md",
+    "unavailable.jsonl",
+    "verification.json",
+    "tool-meta.json",
+    "ARCHITECTURE.md"
+  ],
+  "lock_order": [
+    "data/group-monitor/worker.lock (flock)",
+    "sqlite connection",
+    "verdicts.json lock",
+    "outcomes.json lock",
+    "profile lock",
+    "checkpoint files"
+  ],
+  "consistency_rule": "capture all recovery-set members while holding worker.lock, or use the SQLite backup API plus post-copy re-hash of the JSON set; record a logical revision id + per-file hashes in the backup manifest",
+  "restore_defaults": {
+    "target": "new directory",
+    "notifications": "disabled",
+    "scanning": "disabled",
+    "permissions": "0700/0600"
+  }
+}

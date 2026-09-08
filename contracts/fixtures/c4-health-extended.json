@@ -1,0 +1,54 @@
+{
+  "contract": "C4",
+  "revision": "c1",
+  "status": "target (A03), additive",
+  "stages_states": [
+    "ok",
+    "degraded",
+    "failed",
+    "auth_required",
+    "recovering",
+    "unknown"
+  ],
+  "stage_names": [
+    "capture",
+    "hydration",
+    "semantic_review",
+    "decision_sync",
+    "notification",
+    "backup",
+    "export"
+  ],
+  "sample_additive_block": {
+    "last_run_outcome": "error",
+    "last_run_at": "2026-09-06T16:47:00+00:00",
+    "last_semantic_success_at": "2026-09-05T22:17:00+00:00",
+    "auth_required": true,
+    "backlog_age_seconds": 66000,
+    "backoff": {
+      "active": true,
+      "until": "2026-09-06T18:47:00+00:00",
+      "reason": "model HTTP 401 x3"
+    },
+    "stages": {
+      "capture": {
+        "state": "ok",
+        "at": "2026-09-06T16:47:10+00:00"
+      },
+      "semantic_review": {
+        "state": "auth_required",
+        "at": "2026-09-06T16:47:20+00:00",
+        "detail": "model HTTP 401"
+      },
+      "decision_sync": {
+        "state": "ok",
+        "at": "2026-09-06T16:47:12+00:00"
+      }
+    }
+  },
+  "rules": [
+    "an old passing gate must not overwrite a newer failure",
+    "viewer liveness independent of stage health",
+    "no credentials or secret material in any field"
+  ]
+}

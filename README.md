@@ -34,6 +34,16 @@ You can also say:
 
 Set up a daily or weekly cron job and your agent will automatically check for new bookmarks, categorize them, and deliver a digest to you.
 
+### Private Group Share Filter
+
+The durable group monitor resumes after the last previously audited group message,
+captures resources from every account in the group, and keeps failed X reads in a
+retry queue. Its self-contained HTML dashboard refreshes on every run; served by
+`scripts/manage_radar_server.py install` at http://127.0.0.1:8765/ it updates in
+place and shows what is new since your last visit, top picks, and software /
+practice / research lanes. See [GROUP_FILTER.md](GROUP_FILTER.md) for the
+schedule, outputs, selection profile, dashboard, and kill switches.
+
 ## What it does
 
 - Fetches your X bookmarks via **bird CLI** or **X API v2** (auto-detects)

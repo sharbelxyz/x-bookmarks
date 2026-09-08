@@ -1,0 +1,22 @@
+{
+  "contract": "C2",
+  "revision": "c1",
+  "success": {
+    "ok": true,
+    "action": "added",
+    "key": "github.com/example/synthetic-cli",
+    "verdict": "must_try",
+    "total": 30,
+    "note": "Takes effect in the dashboard after the next export (within 30 minutes) or Scan now."
+  },
+  "actions": [
+    "added",
+    "replaced",
+    "cleared",
+    "not present"
+  ],
+  "additive_target_fields": [
+    "revision",
+    "record"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decisions"
+  ],
+  "properties": {
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "resource_id",
+          "relevant",
+          "project_areas",
+          "reason"
+        ],
+        "properties": {
+          "resource_id": {
+            "type": "string"
+          },
+          "relevant": {
+            "type": "boolean"
+          },
+          "project_areas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ai",
+                "ai-agent-systems",
+                "hermes-communications",
+                "marketplace-product-ops",
+                "apps-frontend-release",
+                "documents-knowledge-learning",
+                "saudi-arabic-career-legal",
+                "infrastructure-security",
+                "creative-brand-media",
+                "automation-research-tools"
+              ]
+            }
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "contract": "C7",
+  "revision": "c1",
+  "get_routes": [
+    "/api/health",
+    "/",
+    "/dashboard.html",
+    "/dashboard-data.json",
+    "/status.json",
+    "/verification.json",
+    "/relevant.csv",
+    "/all-resources.csv",
+    "/relevant.jsonl",
+    "/latest.md",
+    "/negative-proposals.json",
+    "/favicon.ico"
+  ],
+  "post_routes": {
+    "/api/run": "run",
+    "/api/verdict": "verdict",
+    "/api/outcome": "outcome",
+    "/api/negative-term": "negative-term"
+  },
+  "action_header": "X-Radar-Action",
+  "body_limits": {
+    "min": 1,
+    "max": 16384
+  },
+  "method_policy": "GET/HEAD on routes; POST on api routes; everything else 405",
+  "bind": "loopback only; production port 8765 forbidden in lanes; tests bind port 0",
+  "targets_a08": [
+    "Host allowlist incl. port",
+    "Origin/Referer policy for mutations",
+    "non-object JSON body -> controlled 400",
+    "content-type validation",
+    "bounded read time",
+    "read-back route registration via 07"
+  ]
+}

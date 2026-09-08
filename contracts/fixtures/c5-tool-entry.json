@@ -1,0 +1,46 @@
+{
+  "contract": "C5",
+  "revision": "c1",
+  "frozen_keys": [
+    "key",
+    "name",
+    "url",
+    "label",
+    "is_repo",
+    "verdict",
+    "rank",
+    "lane",
+    "what",
+    "why",
+    "first_step",
+    "reason_code",
+    "stars",
+    "license",
+    "last_push",
+    "mentions",
+    "resource_ids",
+    "best_score",
+    "latest_share",
+    "auto",
+    "facts",
+    "meta_loaded",
+    "outcome",
+    "outcome_note",
+    "outcome_at",
+    "resource_type"
+  ],
+  "verdict_values": [
+    "must_try",
+    "must_read",
+    "excluded",
+    "already_have",
+    "unreviewed"
+  ],
+  "auto_gate_reason_codes": [
+    "gone",
+    "archived",
+    "empty",
+    "stale",
+    "tiny"
+  ]
+}

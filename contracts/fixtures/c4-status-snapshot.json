@@ -1,0 +1,21 @@
+{
+  "contract": "C4",
+  "revision": "c1",
+  "frozen_fields": [
+    "updated_at",
+    "fetch_cursor",
+    "fetch_incomplete",
+    "last_fetch_at",
+    "last_fetch_error",
+    "messages_captured",
+    "owner_messages_captured",
+    "non_owner_messages_captured",
+    "senders_captured",
+    "resource_occurrences",
+    "capture_scope_version",
+    "resources",
+    "status_counts",
+    "unattempted_hydration",
+    "gate_ready"
+  ]
+}

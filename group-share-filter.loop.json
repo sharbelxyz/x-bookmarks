@@ -1,0 +1,110 @@
+{
+  "spec_version": "1-provisional",
+  "name": "group-share-filter",
+  "goal": "Twice per hour, inspect newly shared resources from every account in the private X group, retain AI or existing-project matches in a durable local feed and HTML dashboard, and produce a concise Telegram delta only when a useful match appears. The loop is read-only on X and never acts on a referenced product or service.",
+  "pattern": "monitor",
+  "trigger": {
+    "type": "cron",
+    "cron": "17,47 * * * *",
+    "expected_cadence_hours": 0.75,
+    "timezone": "Asia/Riyadh"
+  },
+  "runtime": {
+    "adapter": "workflow-script",
+    "artifact": "/Users/mshrmnsr/claude1/x-bookmarks/scripts/group_filter_loop.py via crontab block loopsmith:group-share-filter"
+  },
+  "engines": [
+    {
+      "role": "resource-reader",
+      "engine": "agent-reach",
+      "notes": "The active X backend is bird CLI; private group capture uses the existing authenticated local endpoint."
+    },
+    {
+      "role": "semantic-reviewer",
+      "engine": "codex",
+      "effort": "low",
+      "notes": "Used only for resources that deterministic AI and project rules cannot decide."
+    }
+  ],
+  "stages": [
+    {
+      "name": "capture-group-stream",
+      "kind": "deterministic",
+      "description": "Read the configured group after the durable cursor and atomically retain complete messages, sender attribution, and extracted resources from every account before moving that cursor."
+    },
+    {
+      "name": "read-linked-resources",
+      "kind": "agent",
+      "engine_role": "resource-reader",
+      "description": "Read linked X resources through the healthy Agent Reach bird backend; retain failures with retry evidence."
+    },
+    {
+      "name": "apply-project-rules",
+      "kind": "deterministic",
+      "description": "Accept explicit AI/project matches. Live rule misses go to semantic review unless an approved negative applies; historical archive misses terminate under the documented archive policy."
+    },
+    {
+      "name": "collect-secondary-inputs-and-evidence",
+      "kind": "deterministic",
+      "description": "Best-effort bounded Telegram decision-log pull, live bookmark ingestion and GitHub metadata enrichment. The VPS is only the Telegram callback integration; capture and classification remain on the Mac."
+    },
+    {
+      "name": "review-ambiguous-resources",
+      "kind": "agent",
+      "engine_role": "semantic-reviewer",
+      "description": "Classify pending resources against the tracked project profile with high recall and a concrete reason for every decision."
+    },
+    {
+      "name": "verify-and-notify-delta",
+      "kind": "deterministic",
+      "description": "Export and verify database, all-sender scope, queue, cursor and output invariants, then deliver previously authorized informational deltas per occurrence. The loopback viewer also owns guarded verdict/outcome/rule APIs. Core work has a 28-minute soft budget and a 29.5-minute SIGALRM guard; cleanup and documentation use separate bounded subprocesses."
+    },
+    {
+      "name": "refresh-canonical-architecture",
+      "kind": "deterministic",
+      "description": "After recording either success or failure, run the read-only-source architecture generator in a bounded 30-second subprocess. The existing viewer also refreshes at startup and every 60 seconds. Exact numeric/source/schema drift checks, atomic publication and archived previous versions maintain one canonical file; no new X reads or decisions are performed."
+    }
+  ],
+  "gates": {
+    "ground_truth": {
+      "type": "deterministic",
+      "description": "Every content-bearing message from every observed group sender is durably linked to an explicit resource state, cursor movement is contingent on complete pagination, and all hydrated rows leave semantic review before the run passes.",
+      "criteria": "SQLite integrity_check is ok; capture_scope_version is all-senders-v1; fetch_incomplete is false; fetch_cursor is numeric; missing sender, unlinked content, invalid, and orphan counts equal zero; pending_review equals zero; unattempted_hydration equals zero; relevant rows contain decision evidence; status, CSV, JSONL, Markdown, dashboard HTML, and verification artifacts exist."
+    },
+    "human": [
+      {
+        "before_action": "enable Telegram notification delivery",
+        "how": "After a supervised catch-up, the user-authorized baseline command acknowledges the historical cursor and arms future informational alerts. Until that explicit one-time gate is recorded, notification delivery remains disarmed."
+      }
+    ]
+  },
+  "limits": {
+    "max_duration_minutes": 30,
+    "concurrency_max": 1,
+    "stuck_after_repeats": 3,
+    "budget": {
+      "codex_note": "ChatGPT sign-in, low effort, at most four structured batches of 20 per run.",
+      "notes": "Codex is invoked only when deterministic rules leave ambiguous rows."
+    }
+  },
+  "outputs": {
+    "project_dir": "/Users/mshrmnsr/claude1/x-bookmarks",
+    "artifacts_subdir": "data/group-monitor/loopsmith"
+  },
+  "notify": {
+    "telegram": true,
+    "on": [
+      "gate-ready",
+      "stuck",
+      "error"
+    ]
+  },
+  "kill": {
+    "command": "python3 /Users/mshrmnsr/claude1/x-bookmarks/scripts/manage_group_filter_schedule.py uninstall"
+  },
+  "status": "active",
+  "shakedown": {
+    "run_at": "2026-08-29T14:56:49+03:00",
+    "evidence": "The all-sender replay reached the audited July checkpoint across 17 live pages and retained 1656 messages from four posting accounts, including 1041 non-owner messages previously stored blank. It produced 1601 unique resources and 1656 share relations; every text/media-ready ambiguous item received an exact-ID schema-validated Codex decision. Retryable X reads were kept separate until the rate window reopened, then repeated explicit not-found evidence closed them without false classification. The strict gate passed with 666 relevant, 749 irrelevant, 186 unavailable, zero pending review, and zero pending hydration. The generated dashboard was verified in Playwright at 1440x1000 and 390x844 with working search, tabs, sender filters, media, pagination, zero horizontal overflow, and no new console errors."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "contract": "C2",
+  "revision": "c1",
+  "document": {
+    "version": 1,
+    "updated_at": "2026-09-06",
+    "outcomes": [
+      {
+        "key": "github.com/example/synthetic-cli",
+        "name": "synthetic-cli",
+        "state": "kept",
+        "note": "…",
+        "decided_at": "2026-09-06T00:00:00+00:00",
+        "decided_by": "dashboard"
+      }
+    ]
+  }
+}

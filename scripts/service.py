@@ -44,6 +44,15 @@ APP_DIR = SERVICE_DIR / "app"
 ACCOUNTS_FILE = DATA_DIR / "accounts.json"
 DM_CONFIG_FILE = DATA_DIR / "dm_config.json"
 BIRD = "/opt/homebrew/bin/bird"
+# bird is a `#!/usr/bin/env node` script; cron's bare PATH has no node, so every
+# cron-context bird call died with "env: node: No such file or directory" while
+# interactive runs worked. Same trap as gh-in-cron: pass a full PATH explicitly.
+BIRD_ENV = {
+    **os.environ,
+    "PATH": os.pathsep.join(
+        ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"]
+    ),
+}
 
 # X API constants for DM fetching
 DM_CONVERSATION_URL = "https://x.com/i/api/1.1/dm/conversation/{conversation_id}.json"
@@ -140,7 +149,7 @@ def cmd_add(username, auth_token, ct0):
         result = subprocess.run(
             [BIRD, "bookmarks", "-n", "1", "--json",
              "--auth-token", auth_token, "--ct0", ct0],
-            capture_output=True, text=True, timeout=30
+            capture_output=True, text=True, timeout=30, env=BIRD_ENV
         )
         if result.returncode != 0:
             log(f"ERROR: bird failed: {result.stderr[:200]}")
@@ -476,7 +485,7 @@ def fetch_bookmarks(username, auth_token, ct0, fetch_all=False):
         cmd.extend(["-n", "100"])
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=BIRD_ENV)
         if result.returncode != 0:
             log(f"  bird error for @{username}: {result.stderr[:200]}")
             return []

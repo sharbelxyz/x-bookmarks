@@ -1,0 +1,62 @@
+{
+  "contract": "C6",
+  "revision": "c1",
+  "signature": "safe_fetch(url, *, max_bytes=4000000, timeout=20.0, max_redirects=4, allowed_content_types=(), dest_dir=None) -> dict",
+  "result_keys": [
+    "ok",
+    "url",
+    "final_url",
+    "status",
+    "content_type",
+    "bytes",
+    "body_path",
+    "text",
+    "error",
+    "denied_reason"
+  ],
+  "denied_reasons": [
+    "scheme",
+    "private_target",
+    "redirect_target",
+    "too_large",
+    "timeout",
+    "content_type",
+    "provider_unavailable",
+    "error"
+  ],
+  "samples": {
+    "success": {
+      "ok": true,
+      "url": "https://example.com/page",
+      "final_url": "https://example.com/page",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 20480,
+      "body_path": null,
+      "text": "<html>…</html>",
+      "error": null,
+      "denied_reason": null
+    },
+    "denied_private": {
+      "ok": false,
+      "url": "http://169.254.169.254/meta",
+      "final_url": null,
+      "status": null,
+      "content_type": null,
+      "bytes": 0,
+      "body_path": null,
+      "text": null,
+      "error": null,
+      "denied_reason": "private_target"
+    },
+    "oversize": {
+      "ok": false,
+      "denied_reason": "too_large",
+      "bytes": 4000001
+    },
+    "stub_default": {
+      "ok": false,
+      "denied_reason": "provider_unavailable"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "contract": "C2",
+  "revision": "c1",
+  "endpoint": "POST /api/outcome",
+  "header": {
+    "X-Radar-Action": "outcome"
+  },
+  "success": {
+    "key": "github.com/example/synthetic-cli",
+    "name": "synthetic-cli",
+    "state": "kept",
+    "note": "saved 20 min per briefing vs manual flow"
+  },
+  "states": [
+    "trying",
+    "kept",
+    "dropped",
+    "clear"
+  ],
+  "additive_target_fields": [
+    "project",
+    "artifact",
+    "success_measure",
+    "baseline",
+    "observed_result",
+    "units",
+    "evidence",
+    "trial_date"
+  ],
+  "response_success": {
+    "ok": true,
+    "action": "added",
+    "key": "github.com/example/synthetic-cli",
+    "state": "kept",
+    "total": 1
+  }
+}

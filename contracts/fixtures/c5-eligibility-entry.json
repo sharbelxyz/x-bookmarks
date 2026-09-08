@@ -1,0 +1,60 @@
+{
+  "contract": "C5",
+  "revision": "c1",
+  "status": "target (A09), additive",
+  "lanes": [
+    "review",
+    "evidence_pending",
+    "blocked"
+  ],
+  "samples": {
+    "github_tool_ready": {
+      "review_eligibility": {
+        "lane": "review",
+        "reasons": [],
+        "evidence": {
+          "source_url": "https://github.com/example/synthetic-cli",
+          "checked_at": "2026-09-06",
+          "extraction_state": "ok",
+          "confidence": "high"
+        },
+        "project_fit": {
+          "project": "agents",
+          "benefit": "faster briefing triage",
+          "first_step": "run --help on one export",
+          "success_measure": "one briefing produced in < 5 min"
+        }
+      }
+    },
+    "arabic_article_pending": {
+      "review_eligibility": {
+        "lane": "evidence_pending",
+        "reasons": [
+          "destination page not yet fetched"
+        ],
+        "evidence": {
+          "source_url": "https://example.com/ar/article",
+          "checked_at": null,
+          "extraction_state": "pending",
+          "confidence": "low"
+        },
+        "project_fit": null
+      }
+    },
+    "blocked_unsafe": {
+      "review_eligibility": {
+        "lane": "blocked",
+        "reasons": [
+          "fetch denied: private_target"
+        ],
+        "evidence": null,
+        "project_fit": null
+      }
+    }
+  },
+  "rules": [
+    "a failed fetch never yields invented facts/ROI",
+    "missing stars is not a universal exclusion",
+    "unknown Saudi eligibility stays unknown until checked"
+  ]
+}

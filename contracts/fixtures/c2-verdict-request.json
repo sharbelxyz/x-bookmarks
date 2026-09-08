@@ -1,0 +1,59 @@
+{
+  "contract": "C2",
+  "revision": "c1",
+  "endpoint": "POST /api/verdict",
+  "header": {
+    "X-Radar-Action": "verdict"
+  },
+  "success": {
+    "key": "github.com/example/synthetic-cli",
+    "name": "synthetic-cli",
+    "verdict": "must_try",
+    "resource_type": "try",
+    "what": "a runnable CLI",
+    "why": "fits agent work",
+    "first_step": "run --help",
+    "lane": "agents",
+    "stars": 1234,
+    "license": "MIT",
+    "last_push": "2026-09-01"
+  },
+  "clear": {
+    "key": "github.com/example/synthetic-cli",
+    "verdict": "clear"
+  },
+  "invalid_verdict": {
+    "key": "github.com/example/x",
+    "verdict": "love_it",
+    "expect": {
+      "status": 400,
+      "error": true
+    }
+  },
+  "invalid_key": {
+    "key": "nokey",
+    "verdict": "must_try",
+    "expect": {
+      "status": 400,
+      "error": true
+    }
+  },
+  "type_conflict": {
+    "key": "github.com/example/an-article",
+    "verdict": "must_try",
+    "resource_type": "read",
+    "expect": {
+      "status": 409,
+      "fields": [
+        "error",
+        "hint"
+      ]
+    }
+  },
+  "allowed_verdicts": [
+    "must_try",
+    "must_read",
+    "excluded",
+    "already_have"
+  ]
+}

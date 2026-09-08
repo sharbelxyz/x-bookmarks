@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Additive migration proposal (submit to Chat 07)",
+  "type": "object",
+  "required": [
+    "lane",
+    "target_store",
+    "ddl_or_change",
+    "backfill",
+    "validation",
+    "rollback"
+  ],
+  "properties": {
+    "lane": {
+      "type": "string",
+      "enum": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06"
+      ]
+    },
+    "target_store": {
+      "type": "string"
+    },
+    "ddl_or_change": {
+      "type": "string",
+      "description": "ALTER/CREATE statements or JSON field additions; additive only"
+    },
+    "backfill": {
+      "type": "string"
+    },
+    "validation": {
+      "type": "string"
+    },
+    "rollback": {
+      "type": "string"
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

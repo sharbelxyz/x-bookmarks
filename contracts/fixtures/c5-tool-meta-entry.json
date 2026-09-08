@@ -1,0 +1,36 @@
+{
+  "contract": "C5",
+  "revision": "c1",
+  "ok_sample": {
+    "slug": "example/synthetic-cli",
+    "fetched_at": "2026-09-06T12:00:00+00:00",
+    "ok": true,
+    "description": "synthetic",
+    "stars": 1234,
+    "forks": 56,
+    "pushed_at": "2026-09-01",
+    "created_at": "2025-01-01",
+    "archived": false,
+    "is_fork": false,
+    "is_empty": false,
+    "language": "Python",
+    "homepage": "",
+    "topics": [
+      "agents"
+    ],
+    "license": "MIT"
+  },
+  "missing_sample": {
+    "slug": "example/gone",
+    "fetched_at": "2026-09-06T12:00:00+00:00",
+    "ok": false,
+    "error": "missing",
+    "missing": true
+  },
+  "error_sample": {
+    "slug": "example/timeout",
+    "fetched_at": "2026-09-06T12:00:00+00:00",
+    "ok": false,
+    "error": "timeout"
+  }
+}
