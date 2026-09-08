@@ -1,8 +1,8 @@
 # Complete Architecture: Group Resource Radar
 
-> Generated at: 2026-09-08T07:34:26+00:00
+> Generated at: 2026-09-08T07:40:03+00:00
 > Canonical file: /Users/mshrmnsr/claude1/x-bookmarks/ARCHITECTURE.md
-> Source/config fingerprint: 6742e267f312c7abd5893f5b58e5d1900c26c47306b93c6d5efd8f7458151c13
+> Source/config fingerprint: 55ecf01c907a10c48afc51b9edc24515be4a57b73655a10aa882b8944f89f8b3
 > Inventory is source-derived; explanatory prose is maintained in references/architecture-guide.md.
 > Refresh: viewer startup, every 60 seconds while running, and after scanner runs. Stopped/asleep services cannot refresh.
 > Drift checks do not prove every narrative claim or third-party service behavior. Review affected contracts after changes.
@@ -780,7 +780,7 @@ Only explicit public source/config paths are inspected. Account/environment file
 
 | Scope-relative path | SHA-256 prefix |
 |---|---|
-| .gitignore | 55a423cc2932 |
+| .gitignore | 57085585523d |
 | GROUP_FILTER.md | 1bf3b8ecc709 |
 | README.md | 5aa94681824a |
 | SERVICE_GUIDE.md | f47d2c9883ac |
